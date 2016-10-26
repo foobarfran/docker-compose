@@ -1,0 +1,27 @@
+elasticsearch:
+  image: elasticsearch:5
+  command: elasticsearch -Enetwork.host=0.0.0.0
+  environment:
+    - ES-JAVA-OPTS="-Xms1g -Xmx1g"
+  volumes:
+    - /docker-volumes/es-logstash:/usr/share/elasticsearch/data
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+logstash:
+  build: logstash/
+  command: logstash -f /etc/logstash/conf.d/logstash.conf
+  volumes:
+    - ./logstash/config:/etc/logstash/conf.d
+  ports:
+    - "5000:5000"
+  links:
+    - elasticsearch
+kibana:
+  build: kibana/
+  volumes:
+    - ./kibana/config/:/opt/kibana/config/
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch
